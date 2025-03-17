@@ -8,6 +8,12 @@ function jsonResponse(data: any, status = 200): NextResponse {
   return NextResponse.json(data, { status });
 }
 
+type Item = {
+  id: string;
+  name: string;
+  // Add other properties as needed
+};
+
 // GET: Ambil semua item
 export async function GET(req: NextRequest): Promise<NextResponse> {
   await connectToDatabase();
