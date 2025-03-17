@@ -1,14 +1,34 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import useSWR from 'swr';
-import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/solid';
+import React, { useState } from "react";
+import useSWR from "swr";
+import { PlusIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/solid";
 
-const fetcher = (url: string) => fetch(url).then(res => res.json());
+const fetcher = async (url: string): Promise<any> => {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error("Failed to fetch data");
+  }
+  return response.json();
+};
+
+interface Item {
+  _id: string;
+  title: string;
+  description?: string;
+  price: number;
+}
 
 export default function HomePage() {
-  const { data, error, mutate } = useSWR('/api/items', fetcher);
-  const [formData, setFormData] = useState({ title: '', description: '', price: '' });
+  const { data, error, mutate } = useSWR<{ data: Item[] }>(
+    "/api/items",
+    fetcher
+  );
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    price: "",
+  });
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -16,8 +36,8 @@ export default function HomePage() {
     if (editingId) {
       // Update item
       await fetch(`/api/items?id=${editingId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: formData.title,
           description: formData.description,
@@ -26,9 +46,9 @@ export default function HomePage() {
       });
     } else {
       // Buat item baru
-      await fetch('/api/items', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      await fetch("/api/items", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: formData.title,
           description: formData.description,
@@ -36,22 +56,22 @@ export default function HomePage() {
         }),
       });
     }
-    setFormData({ title: '', description: '', price: '' });
+    setFormData({ title: "", description: "", price: "" });
     setEditingId(null);
     mutate();
   };
 
   const handleDelete = async (id: string) => {
-    await fetch(`/api/items?id=${id}`, { method: 'DELETE' });
+    await fetch(`/api/items?id=${id}`, { method: "DELETE" });
     mutate();
   };
 
-  const startEdit = (item: any) => {
+  const startEdit = (item: Item) => {
     setEditingId(item._id);
-    setFormData({ 
-      title: item.title, 
-      description: item.description || '', 
-      price: String(item.price) 
+    setFormData({
+      title: item.title,
+      description: item.description || "",
+      price: String(item.price),
     });
   };
 
@@ -64,12 +84,25 @@ export default function HomePage() {
         </div>
         <div className="flex-none">
           <button className="btn btn-square btn-ghost">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" 
-                 viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
-                    d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
-                    d="M4 13h16M4 17h16" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4z"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M4 13h16M4 17h16"
+              />
             </svg>
           </button>
         </div>
@@ -80,7 +113,7 @@ export default function HomePage() {
         <div className="card bg-base-100 shadow-xl mb-6">
           <div className="card-body">
             <h2 className="card-title">
-              {editingId ? 'Edit Item' : 'Add New Item'}
+              {editingId ? "Edit Item" : "Add New Item"}
             </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="form-control">
@@ -129,7 +162,7 @@ export default function HomePage() {
               </div>
               <div className="form-control mt-6">
                 <button type="submit" className="btn btn-primary">
-                  {editingId ? 'Update' : 'Create'}
+                  {editingId ? "Update" : "Create"}
                   {editingId ? (
                     <PencilIcon className="w-5 h-5 ml-2" />
                   ) : (
@@ -144,7 +177,7 @@ export default function HomePage() {
         {/* Daftar Item */}
         <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           {data?.data &&
-            data.data.map((item: any) => (
+            data.data.map((item: Item) => (
               <div key={item._id} className="card bg-base-100 shadow-xl">
                 <div className="card-body">
                   <h2 className="card-title">{item.title}</h2>
