@@ -17,10 +17,15 @@ interface CachedMongoose {
   promise: Promise<typeof mongoose> | null;
 }
 
-let cached: CachedMongoose = (global as any).mongoose;
+declare global {
+  // Menambahkan tipe eksplisit untuk global.mongoose
+  var mongoose: CachedMongoose | undefined;
+}
+
+let cached: CachedMongoose = global.mongoose || { conn: null, promise: null };
 
 if (!cached) {
-  cached = (global as any).mongoose = { conn: null, promise: null };
+  cached = global.mongoose = { conn: null, promise: null };
 }
 
 export async function connectToDatabase() {
@@ -29,8 +34,7 @@ export async function connectToDatabase() {
   }
 
   if (!cached.promise) {
-    cached.promise = mongoose.connect(MONGODB_URI as string, {
-    });
+    cached.promise = mongoose.connect(MONGODB_URI as string, {});
   }
   cached.conn = await cached.promise;
   return cached.conn;

@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import useSWR from "swr";
 import { PlusIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/solid";
 
-const fetcher = async (url: string): Promise<any> => {
+const fetcher = async (url: string): Promise<{ data: Item[] }> => {
   const response = await fetch(url);
   if (!response.ok) {
     throw new Error("Failed to fetch data");
