@@ -20,8 +20,11 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
     const items: IItem[] = await Item.find({});
     return jsonResponse({ success: true, data: items });
-  } catch (error: any) {
-    return jsonResponse({ success: false, error: error.message }, 500);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return jsonResponse({ success: false, error: error.message }, 500);
+    }
+    return jsonResponse({ success: false, error: "Unknown error" }, 500);
   }
 }
 
@@ -33,8 +36,11 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const newItem = new Item(body);
     const savedItem = await newItem.save();
     return jsonResponse({ success: true, data: savedItem }, 201);
-  } catch (error: any) {
-    return jsonResponse({ success: false, error: error.message }, 400);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return jsonResponse({ success: false, error: error.message }, 400);
+    }
+    return jsonResponse({ success: false, error: "Unknown error" }, 400);
   }
 }
 
@@ -58,8 +64,11 @@ export async function PUT(req: NextRequest): Promise<NextResponse> {
       );
     }
     return jsonResponse({ success: true, data: updatedItem });
-  } catch (error: any) {
-    return jsonResponse({ success: false, error: error.message }, 400);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return jsonResponse({ success: false, error: error.message }, 400);
+    }
+    return jsonResponse({ success: false, error: "Unknown error" }, 400);
   }
 }
 
@@ -80,7 +89,10 @@ export async function DELETE(req: NextRequest): Promise<NextResponse> {
       );
     }
     return jsonResponse({ success: true, data: deletedItem });
-  } catch (error: any) {
-    return jsonResponse({ success: false, error: error.message }, 400);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return jsonResponse({ success: false, error: error.message }, 400);
+    }
+    return jsonResponse({ success: false, error: "Unknown error" }, 400);
   }
 }
