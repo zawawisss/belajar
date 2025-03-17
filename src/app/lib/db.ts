@@ -17,16 +17,8 @@ interface CachedMongoose {
   promise: Promise<typeof mongoose> | null;
 }
 
-declare global {
-  // Menambahkan tipe eksplisit untuk global.mongoose
-  var mongoose: CachedMongoose | undefined;
-}
-
-let cached: CachedMongoose = global.mongoose || { conn: null, promise: null };
-
-if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
-}
+// Use a module-scoped variable instead of augmenting the global scope
+const cached: CachedMongoose = { conn: null, promise: null };
 
 export async function connectToDatabase() {
   if (cached.conn) {
