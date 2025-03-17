@@ -15,7 +15,7 @@ type Item = {
 };
 
 // GET: Ambil semua item
-export async function GET(req: NextRequest): Promise<NextResponse> {
+export async function GET(): Promise<NextResponse> {
   await connectToDatabase();
   try {
     const items: IItem[] = await Item.find({});
